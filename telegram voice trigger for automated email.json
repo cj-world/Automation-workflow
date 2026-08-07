@@ -1,0 +1,726 @@
+{
+  "name": "telegram voice trigger for automated email",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2064,
+        128
+      ],
+      "id": "c8f0fdd9-4624-4025-b46d-d5b02bb2637e",
+      "name": "Telegram Trigger",
+      "webhookId": "05abb903-4237-4be6-918f-2191350be21d",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1856,
+        128
+      ],
+      "id": "c6c73c73-356f-42c2-8ce9-4c7c8bc3c734",
+      "name": "Get a file",
+      "webhookId": "87577454-d7fd-420c-bcf2-ec610a7db79c",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Transcribe a recording').item.json.text }}",
+        "options": {
+          "systemMessage": "=You are an intelligent AI Email Assistant responsible for converting transcribed voice messages into accurate, professional emails.\n\nYou will receive a transcription generated from a user's voice recording. Treat the transcription as the user's direct instructions.\n\nYour objective is to accurately understand the user's intent, identify the intended recipient, retrieve the recipient's email address using the available Google Sheets tool, compose a professional email that faithfully reflects the user's message.\n\n## Responsibilities\n\n### 1. Understand the Request\nCarefully read the transcription.\n\nDetermine:\n- Who the email is intended for.\n- The purpose of the email.\n- Any important details such as dates, deadlines, locations, requests, questions, attachments, or follow-up actions.\n- The desired tone (formal, professional, friendly, apologetic, persuasive, urgent, etc.).\n\nNever change the meaning of the user's message.\n\n### 2. Identify the Recipient\n\nExtract the recipient's name exactly as mentioned.\n\nExamples:\n- \"Send this to John.\"\n- \"Email Sarah.\"\n- \"Write to Mr. Williams.\"\n- \"Tell my supervisor...\"\n\nIf the recipient is not clearly identified, ask the user for clarification instead of guessing.\n\n### 3. Find the Recipient's Email\n\nUse the Google Sheets tool to search for the recipient.\nextract the name and email address from my_contacts.\n\nSearch using:\n- Full name\n- Partial name\n- Common variations if appropriate\n\nIf multiple matches are returned:\n- Choose the most appropriate match only if the context makes it obvious.\n- Otherwise ask the user which contact they intended.\n\nIf no matching contact is found:\nInform the user that no matching contact exists in the contact list.\nNever invent or guess an email address.\n\n### 4. Compose the Email\n\nWrite a natural, professional email.\n\nRequirements:\n- Create a concise and relevant subject line.\n- Preserve the user's original intent.\n- Improve grammar and readability without changing the meaning.\n- Include a professional greeting.\n- End with a suitable closing.\n\nDo not add information that the user did not provide.\n\n### 5. Send the Email\n\nUse the email tool to send the email to the address returned from Google Sheets.\n\nBefore sending, verify:\n- Correct recipient\n- Correct subject\n- Correct message body\n\n### 6. Confirm Completion\n\nAfter sending, provide a concise confirmation including:\n- Recipient's name\n- Recipient's email address\n- Subject\n- Confirmation that the email was successfully sent\n\n## Important Rules\n\n- Never fabricate names, email addresses, facts, or requests.\n- Never send an email if the recipient cannot be confidently identified.\n- Never assume information that is missing.\n- If the transcription appears incomplete or ambiguous, ask for clarification before proceeding.\n- If the user explicitly asks only for a draft, compose the email but do not send it.\n- If multiple recipients are mentioned, send separate emails unless the user specifically requests a single email addressed to all recipients.\n- Always prioritize accuracy over speed.\n- Maintain professionalism, confidentiality, and faithful representation of the user's intent.\n\nYour primary goal is to transform the transcribed message into an accurate, polished email and ensure it is delivered to the correct recipient using the available tools."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -288,
+        -288
+      ],
+      "id": "40b8f310-5904-4cfe-8dba-f6970da9ee5b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        80
+      ],
+      "id": "763562ef-1945-4745-9899-3ea17f517124",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "hjLFz0RAD5639zTm",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        -1648,
+        128
+      ],
+      "id": "50381da7-9f2a-4887-a871-0698e52df89b",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "hjLFz0RAD5639zTm",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1EGpeZ7meBuBhJl7j-qlmNK5i5sU_EBK247WH-EVVHKY",
+          "mode": "list",
+          "cachedResultName": "my_contacts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EGpeZ7meBuBhJl7j-qlmNK5i5sU_EBK247WH-EVVHKY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EGpeZ7meBuBhJl7j-qlmNK5i5sU_EBK247WH-EVVHKY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -144,
+        64
+      ],
+      "id": "92dc6d0a-ba82-4d8e-b230-79701ff32da6",
+      "name": "my_contacts",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6A0N95fSNeEzEkGj",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.data.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "No changes, send.",
+              "description": "It signifies that the user approves the generated/drafted mail and you can go on to send"
+            },
+            {
+              "category": "Make changes",
+              "description": "It signifies that the user wants you to reconstruct the drafted mail "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        64
+      ],
+      "id": "c625786b-8103-4778-a8fa-661f84103d9f",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c12bce2-c018-4d3a-89f6-b9f8332e09c0",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        64
+      ],
+      "id": "d382fdab-6ab1-48cc-897f-dbbbd06a6c70",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        272
+      ],
+      "id": "fe9aec85-3008-4ebd-96ae-efe77e600aff",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "hjLFz0RAD5639zTm",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.output.sendTo }}",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        -416
+      ],
+      "id": "c7bd6d1b-0f90-4c9e-aace-b4e7769799d0",
+      "name": "Send a message1",
+      "webhookId": "8c161ba9-f1a9-4845-969d-f7266ac12f6e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "oi4QXttDtRJFORqo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "={{ $json.output }}",
+        "responseType": "freeText",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        64
+      ],
+      "id": "04774bc0-90cc-4dfb-ada1-6ea1d33f2e9f",
+      "name": "Send message and wait for response",
+      "webhookId": "635c3e7f-0302-48e9-bf0b-f509a9404930",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=draft email: {{ $('AI Agent').item.json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Your job is to pick up the draft email, select only the email address, subject and the body. \nAssign \"Your name\" to be CJNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        928,
+        -416
+      ],
+      "id": "68932eaa-3164-43ce-a444-ea05e0a5e8bc",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        -176
+      ],
+      "id": "8be73b6d-1e6a-47e5-b7ec-10368f2986a0",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "hjLFz0RAD5639zTm",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"sendTo\": \" \",\n\t\"subject\": \" \",\n    \"body\": \" \"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1088,
+        -176
+      ],
+      "id": "881b8a20-4735-4296-baba-3c44f402679a",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        624
+      ],
+      "id": "c1d001d9-c42b-4838-bb74-9fb4ff6ad2c9",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "hjLFz0RAD5639zTm",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=The content to regenerate: {{ $('AI Agent').item.json.output }}",
+        "options": {
+          "systemMessage": "=The user say that he doesn't want this email output. Your job is to look at this: {{ $('AI Agent').item.json.output }} and reconstrcut the email body."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        752,
+        384
+      ],
+      "id": "3b520512-6646-4efa-96ec-ca6a57e48935",
+      "name": "AI Agent1 Retry"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "={{ $json.text }}\n\nIS THIS THE RIGHT TRANSCRIBE ?\n\nAPPROVE. \nDON'T APPROVE.",
+        "responseType": "freeText",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1360,
+        128
+      ],
+      "id": "fdf178bb-3bef-4543-a0b8-60cc1ce5c088",
+      "name": "Send message and wait for response1",
+      "webhookId": "c8092d77-cce2-42d8-bb3a-28479b24a907",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.data.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "APPROVE",
+              "description": "This means that the content is correct, and the user wishes to continue with the next flow."
+            },
+            {
+              "category": "DON'T APPROVE",
+              "description": "This means that the content is incorrect, the user wishes to retry."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -1008,
+        128
+      ],
+      "id": "09ef52dd-9949-4903-8c5a-e4233906e586",
+      "name": "Text Classifier1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1008,
+        480
+      ],
+      "id": "effc84cb-8d51-4d38-8c9d-652b88159a60",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "hjLFz0RAD5639zTm",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "PLEASE RECORD AGAIN.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        512
+      ],
+      "id": "265ceabf-dff6-4aad-9d16-4dae35c68261",
+      "name": "Send a text message",
+      "webhookId": "d75d4d6f-45a5-4e13-a53d-e3027c303016",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 580202276,
+          "message": {
+            "message_id": 66,
+            "from": {
+              "id": 5251821915,
+              "is_bot": false,
+              "first_name": "CJ_WORLD",
+              "username": "CTechy1",
+              "language_code": "en"
+            },
+            "chat": {
+              "id": 5251821915,
+              "first_name": "CJ_WORLD",
+              "username": "CTechy1",
+              "type": "private"
+            },
+            "date": 1785426405,
+            "voice": {
+              "duration": 8,
+              "mime_type": "audio/ogg",
+              "file_id": "AwACAgQAAxkBAANCamtx5ZAxq5NWOM0Sy4WwcvDOsFAAAjsmAAK3jmBTCv2KvZYWXoY9BA",
+              "file_unique_id": "AgADOyYAAreOYFM",
+              "file_size": 34492
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "my_contacts": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1 Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1 Retry",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1 Retry": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b5c1cdf3-e14c-46e9-86f4-f563ef078dc9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3c47451e5bdf0ef30609900ca340960f51d55a357332c52d21f43d72c9b1d3e0"
+  },
+  "nodeGroups": [],
+  "id": "mE1AuMws90uh0FOK",
+  "tags": []
+}

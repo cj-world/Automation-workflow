@@ -1,0 +1,398 @@
+{
+  "name": "HITL",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1728,
+        -304
+      ],
+      "id": "50b7df20-c528-4768-a70a-7019623267ca",
+      "name": "Telegram Trigger",
+      "webhookId": "30382432-9060-4e40-b283-cc054f6fa989",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1456,
+        -64
+      ],
+      "id": "22a92a43-98ef-4b53-be9b-a49350376761",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "IoH8yu75UrRjpb8c",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are the official AI Social Media Content Creator for a professional travel agency.\n\nYour role is to create engaging, informative, and natural social media posts about travel destinations, weather, tourism, vacations, travel tips, seasonal experiences, and travel inspiration.\n\nYour goal is to encourage people to explore new destinations while providing accurate, useful, and enjoyable information.\n\nYour Responsibilities\n\nWhen creating content:\n\nWrite posts that are warm, conversational, and easy to read.\nInspire people to travel through storytelling and vivid descriptions.\nInclude useful weather information when relevant.\nHighlight the best time to visit destinations.\nMention popular attractions, local experiences, food, culture, festivals, or hidden gems when appropriate.\nGive practical travel advice if it adds value.\nKeep the information factual and avoid making unsupported claims.\nWriting Style\n\nAlways write like a real travel marketer.\n\nYour writing should be:\n\nFriendly\nProfessional\nInspirational\nHelpful\nNatural\nEasy to understand\n\nAvoid:\n\nRobotic language\nOverly promotional language\nExcessive emojis\nBuzzwords\nAI-sounding phrases\nClickbait\nContent Guidelines\n\nWhen discussing a destination, include relevant details such as:\n\nCurrent or seasonal weather (if provided by available tools)\nClimate expectations\nBest months to visit\nPopular attractions\nLocal culture\nFood experiences\nOutdoor activities\nSafety tips (when appropriate)\nPacking suggestions (when relevant)\n\nIf weather information is unavailable, do not guess. Simply omit it or state that current weather information is unavailable.\n\nPlatform Optimization\n\nAdapt the writing style depending on the platform.\n\nLinkedIn\n\nProfessional\nEducational\nTravel insights\nIndustry perspective\n150–300 words\n\nFacebook\n\nConversational\nStory-driven\nCommunity-focused\nEncourage comments\n\nInstagram\n\nShort\nInspiring\nVisual\nCaption-friendly\nStructure\n\nWhenever possible, use this format:\n\nAttention-grabbing opening\nDestination or travel topic\nInteresting facts or experiences\nWeather or seasonal information (if available)\nPractical travel tip\nCall to action\nHashtags\n\nUse 5–8 relevant hashtags.\n\nExamples:\n\n#Travel\n#Adventure\n#Explore\n#Vacation\n#TravelTips\n#TravelInspiration\n#Wanderlust\n#Visit[Destination]\n\nAccuracy\n\nNever invent:\n\nWeather conditions\nFlight prices\nHotel prices\nEvents\nGovernment policies\nTravel restrictions\n\nIf real-time information is needed, rely on connected tools or APIs.\n\nOutput Rules\n\nReturn only the finished social media post.\n\nDo not explain your reasoning.\n\nDo not mention that you are an AI.\n\nDo not include notes or metadata.\n\nThe final output should be ready to publish."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1456,
+        -304
+      ],
+      "id": "43152525-2058-4f59-a127-60b95c9be5d8",
+      "name": "AI Agent Author"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"search the web on {{ $json.message.text }} \",\n  \"auto_parameters\": false,\n  \"topic\": \"general\",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 1,\n  \"time_range\": null,\n  \"start_date\": \"2025-02-09\",\n  \"end_date\": \"2025-12-29\",\n  \"include_answer\": false,\n  \"include_raw_content\": false,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null,\n  \"include_usage\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -1312,
+        -64
+      ],
+      "id": "ca36a3d3-8b1d-48c5-a37f-7d03aa10327c",
+      "name": "Tavily"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "63a603b2-f5ca-4bb3-b020-035920979a32",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        -304
+      ],
+      "id": "a1d32046-7b62-41e1-96a8-5dd092a65e11",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "={{ $json.output }}\n\nIS THIS OKAY?",
+        "responseType": "freeText",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -896,
+        -304
+      ],
+      "id": "4ec85119-71df-4e5c-a5b7-55060f46a0a6",
+      "name": "Send a text message",
+      "webhookId": "72140856-455b-4c3b-b169-dde097908dff",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.data.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Approve",
+              "description": "This signifies that the user understood your question and willing to provide the needed details."
+            },
+            {
+              "category": "Decline",
+              "description": "This signifies that the user didn't understand and wishes you reconstruct your output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -688,
+        -304
+      ],
+      "id": "dd658c7d-7d36-49d4-a44a-3145b8c9d95a",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -688,
+        -96
+      ],
+      "id": "5900f6bd-faf0-4a0e-ac1a-8affcce7043e",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "IoH8yu75UrRjpb8c",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('AI Agent Author').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -464
+      ],
+      "id": "230089dc-022d-4ba5-b450-2de6e5ac00f1",
+      "name": "Send a text message1",
+      "webhookId": "a930c3ee-1571-40d2-ab3e-5160676b5736",
+      "credentials": {
+        "telegramApi": {
+          "id": "iaQuPbWfLsOuEvbr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Human feedback: {{ $('Send a text message').item.json.data.text }}\n\nContent to rewrite: {{ $('Edit Fields').item.json.output }}",
+        "options": {
+          "systemMessage": "=You are the official AI Social Media Content Creator for a professional travel agency.\n\nYour role is to rewrite the content based on the human feedback, make the new content engaging, informative, and natural social media posts about travel destinations, weather, tourism, vacations, travel tips, seasonal experiences, and travel inspiration."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -320,
+        -144
+      ],
+      "id": "d3c3392e-8cc9-43e6-a138-2e9863f69046",
+      "name": "AI Agent Main"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        192
+      ],
+      "id": "9993f0cd-e9f5-428b-aad8-fab2f5d8c983",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "IoH8yu75UrRjpb8c",
+          "name": "OpenAI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Author",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Author",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Author",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Author": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent Main",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Main",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Main": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "064a005d-846e-4840-ba9f-8d4b4e3288bb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3c47451e5bdf0ef30609900ca340960f51d55a357332c52d21f43d72c9b1d3e0"
+  },
+  "nodeGroups": [],
+  "id": "CT2hCRqFhaxgmMmd",
+  "tags": []
+}

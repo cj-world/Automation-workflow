@@ -1,0 +1,205 @@
+{
+  "name": "Voice Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "n8n",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1216,
+        -64
+      ],
+      "id": "12a5d241-70a9-4ef9-8339-332f7925e839",
+      "name": "Webhook",
+      "webhookId": "82c07f65-98ff-4637-b55a-fe2b3fceca9d"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Email: {{ $json.body.to }}\nEmail content: {{ $json.body.emailContent }}",
+        "options": {
+          "systemMessage": "You are an AI agent responsible for drafting and sending professional emails\nbased on user instructions.\n\nYou have access to two tools:\n  • my_contacts  — used to find the email address of the recipient by name.\n  • send_email   — used to compose and send the email.\n\nYour objectives:\n  1. Identify the recipient's contact information.\n  2. Draft a clear, professional email.\n  3. Sign off appropriately before sending.\n\nHow to use your tools:\n  • my_contacts: retrieve the email of the person by inputting the person's name;\n    return the person's email address.\n  • send_email:  compose and send the mail using the retrieved email address,\n    the subject, and the body drafted from the user's request.\n\nAlways confirm the email was sent successfully and return a short confirmation\nmessage so the voice agent can relay it back to the user."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -864,
+        -64
+      ],
+      "id": "dca60917-b6f8-4583-8eb0-13bde806022d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1008,
+        144
+      ],
+      "id": "e7506c2e-d665-446a-8ef8-8701425baa3d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "IoH8yu75UrRjpb8c",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -416,
+        -64
+      ],
+      "id": "48ee733b-d85d-452e-8d84-c9165198485f",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"emailAddress\") }}",
+        "subject": "={{ $fromAI(\"subject\") }}",
+        "message": "={{ $fromAI(\"emailcontent\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -608,
+        160
+      ],
+      "id": "f3b8e2f0-8337-4523-bc50-4d851c19306c",
+      "name": "send_email",
+      "webhookId": "a4b3553b-f2bc-4f40-bad3-9626a8147210",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "oi4QXttDtRJFORqo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1EGpeZ7meBuBhJl7j-qlmNK5i5sU_EBK247WH-EVVHKY",
+          "mode": "list",
+          "cachedResultName": "my_contacts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EGpeZ7meBuBhJl7j-qlmNK5i5sU_EBK247WH-EVVHKY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EGpeZ7meBuBhJl7j-qlmNK5i5sU_EBK247WH-EVVHKY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -800,
+        160
+      ],
+      "id": "e609292f-c505-43c5-8933-9f7ef61410b5",
+      "name": "my_contacts",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6A0N95fSNeEzEkGj",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "my_contacts": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "47f0903f-f532-47f6-9578-c01e57d77d66",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3c47451e5bdf0ef30609900ca340960f51d55a357332c52d21f43d72c9b1d3e0"
+  },
+  "nodeGroups": [],
+  "id": "O1UELtZ4oSt5CtWt",
+  "tags": []
+}
